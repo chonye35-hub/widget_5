@@ -5,135 +5,125 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+@import url('https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css');
 
 body{
-  margin:0;
-  height:100vh;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-  background:transparent;
+margin:0;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:transparent;
+font-family:'GalmuriMono', monospace;
 }
 
-.container{
-  padding:20px 28px;
-
-  border-radius:20px;
-
-  background:rgba(255,255,255,0.75);
-  backdrop-filter:blur(20px);
-
-  box-shadow:0 6px 16px rgba(0,0,0,0.12);
-
-  text-align:center;
+.widget{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:12px;
+padding:20px 28px;
+background:rgba(255,255,255,0.9);
+border-radius:14px;
+box-shadow:0 2px 6px rgba(0,0,0,0.08);
 }
 
-.time{
-  font-size:40px;
-  font-weight:600;
-  letter-spacing:2px;
-
-  margin-bottom:16px;
+.timer{
+font-size:34px;
 }
 
 .buttons{
-  display:flex;
-  gap:8px;
-  justify-content:center;
+display:flex;
+gap:8px;
 }
 
 button{
-  border:none;
-  padding:8px 14px;
-  border-radius:10px;
-
-  font-size:14px;
-
-  background:#111;
-  color:white;
-
-  cursor:pointer;
+font-family:'GalmuriMono', monospace;
+border:none;
+background:#222;
+color:white;
+padding:6px 14px;
+border-radius:8px;
+cursor:pointer;
 }
-
-button:active{
-  transform:scale(.95);
-}
-
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="widget">
 
-<div class="time" id="time">
-00:00:00
-</div>
+<div class="timer" id="timer">25:00</div>
 
 <div class="buttons">
-<button onclick="start()">Start</button>
-<button onclick="stop()">Stop</button>
-<button onclick="reset()">Reset</button>
+<button id="toggle">Start</button>
+<button id="reset">Reset</button>
 </div>
 
 </div>
 
 <script>
 
-let startTime = 0
-let elapsed = 0
-let timer = null
+const TOTAL=1500
+let time=TOTAL
+let running=false
+let interval
 
-function update(){
+const timer=document.getElementById("timer")
+const toggle=document.getElementById("toggle")
+const reset=document.getElementById("reset")
 
-  const now = Date.now()
-  const diff = elapsed + (now - startTime)
+function draw(){
+const m=String(Math.floor(time/60)).padStart(2,"0")
+const s=String(time%60).padStart(2,"0")
+timer.innerText=`${m}:${s}`
+}
 
-  const ms = Math.floor(diff/10)%100
-  const s = Math.floor(diff/1000)%60
-  const m = Math.floor(diff/60000)
+toggle.onclick=()=>{
 
-  document.getElementById("time").innerText =
-    String(m).padStart(2,"0")+":"+
-    String(s).padStart(2,"0")+":"+
-    String(ms).padStart(2,"0")
+if(!running){
+
+interval=setInterval(()=>{
+time--
+localStorage.setItem("pomo",time)
+draw()
+
+if(time<=0){
+clearInterval(interval)
+toggle.innerText="Start"
+running=false
+}
+
+},1000)
+
+toggle.innerText="Pause"
+running=true
+
+}else{
+
+clearInterval(interval)
+toggle.innerText="Resume"
+running=false
 
 }
 
-function start(){
+}
 
-  if(timer) return
+reset.onclick=()=>{
 
-  startTime = Date.now()
-
-  timer = setInterval(update,10)
+clearInterval(interval)
+time=TOTAL
+localStorage.setItem("pomo",TOTAL)
+toggle.innerText="Start"
+running=false
+draw()
 
 }
 
-function stop(){
+const saved=localStorage.getItem("pomo")
+if(saved) time=parseInt(saved)
 
-  if(!timer) return
-
-  clearInterval(timer)
-  timer = null
-
-  elapsed += Date.now()-startTime
-
-}
-
-function reset(){
-
-  clearInterval(timer)
-
-  timer = null
-  elapsed = 0
-
-  document.getElementById("time").innerText="00:00:00"
-
-}
+draw()
 
 </script>
 
