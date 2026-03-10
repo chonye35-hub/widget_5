@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+  margin:0;
+  height:100vh;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  background:transparent;
+}
+
+.container{
+  padding:20px 28px;
+
+  border-radius:20px;
+
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(20px);
+
+  box-shadow:0 6px 16px rgba(0,0,0,0.12);
+
+  text-align:center;
+}
+
+.time{
+  font-size:40px;
+  font-weight:600;
+  letter-spacing:2px;
+
+  margin-bottom:16px;
+}
+
+.buttons{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+}
+
+button{
+  border:none;
+  padding:8px 14px;
+  border-radius:10px;
+
+  font-size:14px;
+
+  background:#111;
+  color:white;
+
+  cursor:pointer;
+}
+
+button:active{
+  transform:scale(.95);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="time" id="time">
+00:00:00
+</div>
+
+<div class="buttons">
+<button onclick="start()">Start</button>
+<button onclick="stop()">Stop</button>
+<button onclick="reset()">Reset</button>
+</div>
+
+</div>
+
+<script>
+
+let startTime = 0
+let elapsed = 0
+let timer = null
+
+function update(){
+
+  const now = Date.now()
+  const diff = elapsed + (now - startTime)
+
+  const ms = Math.floor(diff/10)%100
+  const s = Math.floor(diff/1000)%60
+  const m = Math.floor(diff/60000)
+
+  document.getElementById("time").innerText =
+    String(m).padStart(2,"0")+":"+
+    String(s).padStart(2,"0")+":"+
+    String(ms).padStart(2,"0")
+
+}
+
+function start(){
+
+  if(timer) return
+
+  startTime = Date.now()
+
+  timer = setInterval(update,10)
+
+}
+
+function stop(){
+
+  if(!timer) return
+
+  clearInterval(timer)
+  timer = null
+
+  elapsed += Date.now()-startTime
+
+}
+
+function reset(){
+
+  clearInterval(timer)
+
+  timer = null
+  elapsed = 0
+
+  document.getElementById("time").innerText="00:00:00"
+
+}
+
+</script>
+
+</body>
+</html>
